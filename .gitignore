@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+
+# Virtual environments
+.venv/
+venv/
+ml-venv/
+
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Ray and training artifacts
+ray_results/
+ray_logs/
+checkpoints/
+*.pt
+*.pth
+*.ckpt
+
+# Editor and OS files
+.vscode/
+.idea/
+.DS_Store
