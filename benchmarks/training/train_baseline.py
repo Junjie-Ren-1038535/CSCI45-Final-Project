@@ -49,9 +49,14 @@ def train_func(config):
 
     device = get_device()
 
+    # Synchronize all workers before starting the benchmark
+    if torch.distributed.is_initialized():
+        torch.distributed.barrier()
+
+    torch.cuda.synchronize()
     start = time.perf_counter()
 
-    accumulation_steps = 128
+    accumulation_steps = config["accumulation"]
 
     optimizer.zero_grad()
 
@@ -100,6 +105,21 @@ def train_func(config):
     torch.cuda.synchronize()
     elapsed = time.perf_counter() - start
 
+    # Use the slowest worker's elapsed time for distributed throughput.
+    if torch.distributed.is_initialized():
+   	 elapsed_tensor = torch.tensor(
+        	[elapsed],
+        	dtype=torch.float64,
+        	device=device,
+    	)
+   	 torch.distributed.all_reduce(
+       		 elapsed_tensor,
+       		 op=torch.distributed.ReduceOp.MAX,
+   	 )
+   	 global_elapsed = elapsed_tensor.item()
+    else:
+   	 global_elapsed = elapsed
+
     context = train.get_context()
     world_size = context.get_world_size()
 
@@ -107,8 +127,10 @@ def train_func(config):
         "hostname": socket.gethostname(),
         "elapsed_seconds": elapsed,
         "samples_per_second": (
-            batch_size * steps * world_size / elapsed
+            batch_size * steps * world_size / global_elapsed
         ),
+        "global_elapsed_seconds": global_elapsed,
+	"accumulation": accumulation_steps,
         "world_size": world_size,
         "batch_size": batch_size,
         "steps": steps,
@@ -122,11 +144,28 @@ def main():
     parser.add_argument("--batch-size", type=int, default=64)
     parser.add_argument("--steps", type=int, default=100)
     parser.add_argument(
+   	"--accumulation",
+	type=int,
+	default=128,
+	help="Number of microbatches per optimizer update",
+)
+    parser.add_argument(
 	"--gpu",
 	choices=["auto", "rtx3060", "gtx1050"],
 	default="auto",
 	)
     args = parser.parse_args()
+    if args.workers < 1:
+   	 parser.error("--workers must be at least 1")
+
+    if args.batch_size < 1:
+   	 parser.error("--batch-size must be at least 1")
+
+    if args.steps < 1:
+   	 parser.error("--steps must be at least 1")
+
+    if args.accumulation < 1:
+    	parser.error("--accumulation must be at least 1")
 
     ray.init(address="auto")
 
@@ -149,6 +188,7 @@ def main():
         train_loop_config={
             "batch_size": args.batch_size,
             "steps": args.steps,
+	    "accumulation": args.accumulation,
         },
         scaling_config=ScalingConfig(
             num_workers=args.workers,
