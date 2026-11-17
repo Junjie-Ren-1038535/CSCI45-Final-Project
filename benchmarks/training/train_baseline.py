@@ -7,7 +7,8 @@ from pathlib import Path
 from contextlib import nullcontext
 
 import ray
-from ray.train import ScalingConfig
+from ray.train import ScalingConfig, RunConfig
+from benchmarks.training.metrics_callback import BenchmarkMetricsCallback
 from ray.train.torch import TorchTrainer
 
 
@@ -123,20 +124,23 @@ def train_func(config):
     context = train.get_context()
     world_size = context.get_world_size()
 
-    train.report({
+    metrics = {
         "hostname": socket.gethostname(),
         "elapsed_seconds": elapsed,
         "samples_per_second": (
             batch_size * steps * world_size / global_elapsed
         ),
         "global_elapsed_seconds": global_elapsed,
-	"accumulation": accumulation_steps,
+        "accumulation": accumulation_steps,
         "world_size": world_size,
         "batch_size": batch_size,
         "steps": steps,
         "loss": loss.item() * current_accumulation,
-    })
+    }
 
+    train.report(metrics)
+    if torch.distributed.is_initialized():
+        torch.distributed.destroy_process_group()
 
 def main():
     parser = argparse.ArgumentParser()
@@ -148,12 +152,18 @@ def main():
 	type=int,
 	default=128,
 	help="Number of microbatches per optimizer update",
-)
+    )
     parser.add_argument(
 	"--gpu",
 	choices=["auto", "rtx3060", "gtx1050"],
 	default="auto",
-	)
+    )
+    parser.add_argument(
+        "--output",
+        type=str,
+        default="results/training_benchmarks.csv",
+        help="CSV file for recording training benchmark results",
+    )
     args = parser.parse_args()
     if args.workers < 1:
    	 parser.error("--workers must be at least 1")
@@ -167,7 +177,12 @@ def main():
     if args.accumulation < 1:
     	parser.error("--accumulation must be at least 1")
 
-    ray.init(address="auto")
+    ray.init(
+        address="auto",
+        runtime_env={
+            "working_dir": "/home/a/optiweave-github"
+        },
+    )
 
     gpu_resources = {
 	"rtx3060": {"node:10.10.10.20": 0.001},
@@ -190,6 +205,13 @@ def main():
             "steps": args.steps,
 	    "accumulation": args.accumulation,
         },
+        run_config=RunConfig(
+            callbacks=[
+                BenchmarkMetricsCallback(
+                    str(Path(args.output).resolve())
+                )
+            ],
+        ),
         scaling_config=ScalingConfig(
             num_workers=args.workers,
             use_gpu=True,
@@ -198,7 +220,11 @@ def main():
     )
 
     result = trainer.fit()
-    print(result.metrics)
+
+    print("Result type:", type(result))
+    print("Result metrics:", result.metrics)
+    print("Result metrics dataframe:", result.metrics_dataframe)
+    print("Result checkpoint:", result.checkpoint)
 
     ray.shutdown()
 
