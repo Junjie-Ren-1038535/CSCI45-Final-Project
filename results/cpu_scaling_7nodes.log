@@ -1,0 +1,38 @@
+========== 1 NODES ==========
+Selected workers:
+  10.10.10.20
+Requested nodes: 1
+Actual nodes used: 1
+Elapsed: 73.05s
+Throughput: 175.2 images/s
+========== 2 NODES ==========
+Selected workers:
+  10.10.10.20
+  10.10.10.30
+Requested nodes: 2
+Actual nodes used: 2
+Elapsed: 50.05s
+Throughput: 255.7 images/s
+========== 4 NODES ==========
+Selected workers:
+  10.10.10.20
+  10.10.10.30
+  10.10.10.31
+  10.10.10.32
+Requested nodes: 4
+Actual nodes used: 4
+Elapsed: 25.34s
+Throughput: 505.0 images/s
+========== 7 NODES ==========
+Selected workers:
+  10.10.10.20
+  10.10.10.30
+  10.10.10.31
+  10.10.10.32
+  100.100.232.34
+  100.100.235.122
+  100.74.242.47
+Requested nodes: 7
+Actual nodes used: 7
+Elapsed: 14.80s
+Throughput: 864.8 images/s

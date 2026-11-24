@@ -1,0 +1,39 @@
+========== WEIGHTED RUN 1 ==========
+Selected workers:
+  10.10.10.20
+  10.10.10.30
+  10.10.10.31
+  10.10.10.32
+  100.100.232.34
+  100.100.235.122
+  100.74.242.47
+Requested nodes: 7
+Actual nodes used: 7
+Elapsed: 14.85s
+Throughput: 862.0 images/s
+========== WEIGHTED RUN 2 ==========
+Selected workers:
+  10.10.10.20
+  10.10.10.30
+  10.10.10.31
+  10.10.10.32
+  100.100.232.34
+  100.100.235.122
+  100.74.242.47
+Requested nodes: 7
+Actual nodes used: 7
+Elapsed: 14.81s
+Throughput: 864.1 images/s
+========== WEIGHTED RUN 3 ==========
+Selected workers:
+  10.10.10.20
+  10.10.10.30
+  10.10.10.31
+  10.10.10.32
+  100.100.232.34
+  100.100.235.122
+  100.74.242.47
+Requested nodes: 7
+Actual nodes used: 7
+Elapsed: 14.81s
+Throughput: 864.3 images/s

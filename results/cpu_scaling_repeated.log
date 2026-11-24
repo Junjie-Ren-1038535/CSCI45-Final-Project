@@ -1,0 +1,75 @@
+========== RUN 1 | 1 WORKERS ==========
+Selected workers:
+  10.10.10.30
+Requested nodes: 1
+Actual nodes used: 1
+Elapsed: 33.59s
+Throughput: 190.5 images/s
+========== RUN 1 | 2 WORKERS ==========
+Selected workers:
+  10.10.10.30
+  10.10.10.31
+Requested nodes: 2
+Actual nodes used: 2
+Elapsed: 17.22s
+Throughput: 371.6 images/s
+========== RUN 1 | 4 WORKERS ==========
+Selected workers:
+  10.10.10.30
+  10.10.10.31
+  10.10.10.32
+  100.74.242.47
+Requested nodes: 4
+Actual nodes used: 4
+Elapsed: 9.00s
+Throughput: 711.4 images/s
+========== RUN 2 | 1 WORKERS ==========
+Selected workers:
+  10.10.10.30
+Requested nodes: 1
+Actual nodes used: 1
+Elapsed: 33.79s
+Throughput: 189.4 images/s
+========== RUN 2 | 2 WORKERS ==========
+Selected workers:
+  10.10.10.30
+  10.10.10.31
+Requested nodes: 2
+Actual nodes used: 2
+Elapsed: 17.28s
+Throughput: 370.4 images/s
+========== RUN 2 | 4 WORKERS ==========
+Selected workers:
+  10.10.10.30
+  10.10.10.31
+  10.10.10.32
+  100.74.242.47
+Requested nodes: 4
+Actual nodes used: 4
+Elapsed: 9.08s
+Throughput: 704.8 images/s
+========== RUN 3 | 1 WORKERS ==========
+Selected workers:
+  10.10.10.30
+Requested nodes: 1
+Actual nodes used: 1
+Elapsed: 33.65s
+Throughput: 190.2 images/s
+========== RUN 3 | 2 WORKERS ==========
+Selected workers:
+  10.10.10.30
+  10.10.10.31
+Requested nodes: 2
+Actual nodes used: 2
+Elapsed: 17.26s
+Throughput: 370.8 images/s
+========== RUN 3 | 4 WORKERS ==========
+Selected workers:
+  10.10.10.30
+  10.10.10.31
+  10.10.10.32
+  100.74.242.47
+Requested nodes: 4
+Actual nodes used: 4
+Elapsed: 9.06s
+Throughput: 706.1 images/s

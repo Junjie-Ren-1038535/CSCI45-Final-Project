@@ -40,6 +40,24 @@ def train_func(config):
     )
 
     model = prepare_model(model)
+
+    if config.get("compression", "none") == "fp16":
+        from torch.distributed.algorithms.ddp_comm_hooks import (
+            default_hooks,
+        )
+
+        if not isinstance(
+            model, torch.nn.parallel.DistributedDataParallel
+        ):
+            raise RuntimeError(
+                "FP16 compression requires DistributedDataParallel"
+            )
+
+        model.register_comm_hook(
+            state=None,
+            hook=default_hooks.fp16_compress_hook,
+        )
+
     optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
     loss_fn = nn.CrossEntropyLoss()
 
@@ -159,6 +177,12 @@ def main():
 	default="auto",
     )
     parser.add_argument(
+    "--compression",
+    choices=["none", "fp16"],
+    default="none",
+    help="DDP gradient communication compression",
+    )
+    parser.add_argument(
         "--output",
         type=str,
         default="results/training_benchmarks.csv",
@@ -203,7 +227,8 @@ def main():
         train_loop_config={
             "batch_size": args.batch_size,
             "steps": args.steps,
-	    "accumulation": args.accumulation,
+	        "accumulation": args.accumulation,
+            "compression": args.compression,
         },
         run_config=RunConfig(
             callbacks=[
